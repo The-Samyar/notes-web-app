@@ -1,6 +1,10 @@
-from flask import Blueprint, render_template, request, redirect, flash
+from flask import Blueprint, render_template, request, redirect, flash, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
+from . import db
 
 auth = Blueprint('auth', __name__)
+
+from . import models
 
 @auth.route('/login/', methods=['GET', 'POST'])
 def login():
@@ -35,7 +39,16 @@ def signup():
             error = True
 
         if error == False:
+            new_user = models.User(
+                email= data['email'],
+                first_name = data['firstName'],
+                last_name = data['lastName'],
+                password = generate_password_hash(data['password1'], method='sha256')
+                )
+            db.session.add(new_user)
+            db.session.commit()
+
             flash("Account created", category="Success")
-            return redirect('/')
+            return redirect(url_for('views.index'))
         else:    
             return render_template("sign_up.html")

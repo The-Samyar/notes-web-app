@@ -1,12 +1,12 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from .views import views
-from .auth import auth
 from os import path
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
 
+from .views import views
+from .auth import auth
 
 def create_app():
     app = Flask(__name__)
