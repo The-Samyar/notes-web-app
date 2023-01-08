@@ -10,7 +10,7 @@ from . import models
 @auth.route('/login/', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
-        return render_template("login.html", text="samyar")
+        return render_template("login.html", user=current_user)
     else:
         data = request.form
         user = models.User.query.filter_by(email=data['email']).first()
@@ -35,7 +35,7 @@ def logout():
 @auth.route('/sign-up/', methods=['GET', 'POST'])
 def signup():
     if request.method == 'GET':
-        return render_template("sign_up.html")
+        return render_template("sign_up.html", user=current_user)
     else:
         error = False
         data = request.form
