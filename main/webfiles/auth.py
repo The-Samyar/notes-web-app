@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, flash, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import login_required, login_user, logout_user, current_user
 from . import db
 
 auth = Blueprint('auth', __name__)
@@ -12,11 +13,24 @@ def login():
         return render_template("login.html", text="samyar")
     else:
         data = request.form
-        print(data)
-        return redirect('/login/')
+        user = models.User.query.filter_by(email=data['email']).first()
+        if user:
+            if check_password_hash(user.password, data['password']):
+                login_user(user=user, remember=True)
+                flash("Logged in successfully. Welcome back!", category='Success')
+                return redirect(url_for('views.index'))
+            else:
+                flash("Email or password is incorrect. Try again", category='Error')
+            return redirect(url_for('auth.login'))
+        else:
+            flash("User not found", category='Error')
+            return redirect(url_for('auth.login'))
+
 @auth.route('/logout/')
+@login_required
 def logout():
-    return "Logout page"
+    logout_user()
+    return redirect(url_for('auth.login'))
 
 @auth.route('/sign-up/', methods=['GET', 'POST'])
 def signup():
@@ -25,6 +39,9 @@ def signup():
     else:
         error = False
         data = request.form
+        if models.User.query.filter_by(email=data['email']).first():
+            flash("A user with this email already exists, try another one", category='Error')
+            error = True
 
         if len(data['email']) < 4:
             flash("Email is too short", category='Error')
@@ -48,6 +65,8 @@ def signup():
             db.session.add(new_user)
             db.session.commit()
 
+
+            login_user(user=new_user, remember=True)
             flash("Account created", category="Success")
             return redirect(url_for('views.index'))
         else:    
