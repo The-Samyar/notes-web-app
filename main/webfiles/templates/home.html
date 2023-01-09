@@ -4,6 +4,30 @@
 Home
 {% endblock %}
 
-{% block content%}
-
+{% block content %}
+<h1 align="center">
+    Notes
+</h1>
+<ul class="list_group list_group_flush" id="notes">
+    {% for note in user.notes %}
+    <li class="list-group-item">
+        {{ note.text }}
+        <form action="/delete/" method="post" style="all: unset;">
+            <button type="submit" class="close" name="note_id" value="{{ note.id }}">
+                <span aria-hidden="true">
+                    &times;
+                </span>
+            </button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+<br>
+<form method="post" action="/">
+    <textarea name="note" id="note" cols="30" rows="10" class="form-control"></textarea>
+    <br>
+    <div align="center">
+        <button type="submit" class="btn btn-primary">Save note</button>
+    </div>
+</form>
 {% endblock %}
